@@ -1,11 +1,30 @@
-// Test de frappe : ton appli d'origine, reprise telle quelle (HTML et code inchangés), livrée en plugin.
-// Elle demande l'accès complet : elle utilise les outils de NeoBase comme avant. NeoBase ne l'ouvre que si elle est signée.
+// Test de frappe : ton appli d'origine (HTML et code inchangés), livrée en plugin.
+// Ses données sont dans le dossier du plugin, que NeoBase sauvegarde (synchro cloud et sauvegardes) ; à la première ouverture elle reprend ce que tu avais dans NeoBase.
+// Elle demande l'accès complet pour utiliser les outils d'interface de NeoBase. NeoBase ne l'ouvre que si elle est signée.
 const HTML = "<div class=\"appWrap\">\n      <div class=\"agHead\"><span class=\"label\">Test de frappe</span><span class=\"hint\" id=\"tyBest\"></span><div class=\"agNav\"><label class=\"check\" style=\"font-size:14px\"><input type=\"checkbox\" id=\"tyPunct\"> Ponctuation et majuscules</label><select class=\"f\" id=\"tyDur\" style=\"width:130px;font-size:14px;padding:6px 10px\"><option value=\"15\">15 s</option><option value=\"30\" selected>30 s</option><option value=\"60\">60 s</option><option value=\"120\">2 min</option><option value=\"w25\">25 mots</option><option value=\"w50\">50 mots</option></select><button class=\"btn px\" id=\"tyRestart\">RECOMMENCER</button></div></div>\n      <div class=\"sysCard px\"><div id=\"tyText\"></div><input class=\"f\" id=\"tyIn\" spellcheck=\"false\" autocomplete=\"off\" placeholder=\"Commence à taper : le chrono démarre à la première lettre\"><div class=\"tyBar\"><span id=\"tyLive\" class=\"label\"></span><span class=\"hint\">Tab ou Échap : recommencer</span></div></div>\n      <div class=\"sysCard px tyRes\" id=\"tyRes\" style=\"display:none\"></div>\n      <div class=\"sysCard px\"><span class=\"label\">Tes 20 dernières parties · mots par minute</span><div id=\"tyChart\" class=\"colChart\"></div></div>\n    </div>";
-export default function (ctx) {
+export default async function (ctx) {
   const view = ctx.view;
-  if (typeof el === 'undefined' || typeof neo === 'undefined') { view.textContent = "Ce plugin doit être approuvé par NeoBase pour s'ouvrir."; return; }
+  if (!ctx.host) { view.textContent = "Ce plugin doit être approuvé par NeoBase pour s'ouvrir."; return; }
+  const { el, toast, sfx, ask, newTab, pixIcon, PIX, WX } = ctx.host;
+  const folder = ctx.folder, legacy = ctx.legacy || {};
   view.innerHTML = HTML;
-  const $ = id => view.querySelector('#' + id);  // les identifiants de ta vue, sans toucher à ceux du reste de NeoBase
+  const $ = id => id === "typingApp" ? view : view.querySelector('#' + id);  // les identifiants de ta vue, sans toucher à ceux du reste de NeoBase
+  const doc = async n => { try { return await folder.read(n); } catch { return null; } };
+  const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const LEGACY_API = ["games"];
+  const api = async (n, data) => {
+    if (data !== undefined) { await folder.write(n, data); return true; }
+    let v = await doc(n);
+    if (v == null && legacy.api && LEGACY_API.includes(n)) { v = await legacy.api(n).catch(() => null); if (v != null) await folder.write(n, v); }  // première ouverture : tu retrouves tes données d'avant
+    return v;
+  };
+  let games = await doc('games');
+  if (games == null) { const old = legacy.api ? await legacy.api('games').catch(() => null) : null; games = { typing: old?.typing || [], best: Object.fromEntries(Object.entries(old?.best || {}).filter(([k]) => k.startsWith('typing'))) }; if (old) await folder.write('games', games); }
+  games = { typing: [], best: {}, ...games };
+  let gamesTimer = null;
+  const saveGames = () => { clearTimeout(gamesTimer); gamesTimer = setTimeout(() => { gamesTimer = null; folder.write('games', games).catch(() => {}); }, 500); };
+  const best = (k, v, higher = true) => { const b = games.best[k]; if (b == null || (higher ? v > b : v < b)) { games.best[k] = v; saveGames(); return true; } return false; };
   // ---- ton code d'origine ----
   /* ---------- Test de frappe: modes by time or by number of words, optional punctuation, letter by letter feedback ---------- */
   const TY_WORDS = ('le de un être et à il avoir ne je son que se qui ce dans en du elle au pour pas vous par sur faire plus dire me on mon lui nous comme mais pouvoir avec tout aller voir bien où sans tu ou leur homme si deux moi vouloir te femme venir quand grand celui notre devoir là jour prendre même votre rien petit encore aussi quelque dont mer trouver donner temps peu falloir sous parler alors main chose ton mettre vie savoir yeux passer autre après regarder toujours puis jamais cela aimer non heure croire cent monde donc enfant fois seul entre vers chez demander jeune jusque très moment rester répondre tête père fille mille premier car entendre bon trois cœur an quatre terre contre voix penser quel arriver maison devant coup beau connaître devenir air mot nuit sentir vieux sembler moins tenir ami porte ouvrir partir pendant mieux depuis ville chat livre école musique jouer écran clavier étoile pixel couleur fenêtre soleil route lumière histoire matin soir rapide lent simple question réponse idée travail ensemble bientôt souvent parfois vrai faux image page lettre nombre jeu partie niveau').split(' ');
