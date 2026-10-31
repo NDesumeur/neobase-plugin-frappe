@@ -2,11 +2,31 @@
 // Ses données sont dans le dossier du plugin, que NeoBase sauvegarde (synchro cloud et sauvegardes) ; à la première ouverture elle reprend ce que tu avais dans NeoBase.
 // Elle demande l'accès complet pour utiliser les outils d'interface de NeoBase. NeoBase ne l'ouvre que si elle est signée.
 const HTML = "<div class=\"appWrap\">\n      <div class=\"agHead\"><span class=\"label\">Test de frappe</span><span class=\"hint\" id=\"tyBest\"></span><div class=\"agNav\"><label class=\"check\" style=\"font-size:14px\"><input type=\"checkbox\" id=\"tyPunct\"> Ponctuation et majuscules</label><select class=\"f\" id=\"tyDur\" style=\"width:130px;font-size:14px;padding:6px 10px\"><option value=\"15\">15 s</option><option value=\"30\" selected>30 s</option><option value=\"60\">60 s</option><option value=\"120\">2 min</option><option value=\"w25\">25 mots</option><option value=\"w50\">50 mots</option></select><button class=\"btn px\" id=\"tyRestart\">RECOMMENCER</button></div></div>\n      <div class=\"sysCard px\"><div id=\"tyText\"></div><input class=\"f\" id=\"tyIn\" spellcheck=\"false\" autocomplete=\"off\" placeholder=\"Commence à taper : le chrono démarre à la première lettre\"><div class=\"tyBar\"><span id=\"tyLive\" class=\"label\"></span><span class=\"hint\">Tab ou Échap : recommencer</span></div></div>\n      <div class=\"sysCard px tyRes\" id=\"tyRes\" style=\"display:none\"></div>\n      <div class=\"sysCard px\"><span class=\"label\">Tes 20 dernières parties · mots par minute</span><div id=\"tyChart\" class=\"colChart\"></div></div>\n    </div>";
+/*CSS-MOVED*/ const CSS = `#tyText{display:flex;flex-wrap:wrap;gap:0 12px;font:22px/36px var(--text);color:var(--muted);height:108px;overflow:hidden}
+#tyText .ok{color:var(--lilac)}
+#tyText .bad{color:var(--red);text-decoration:line-through}
+#tyText .cur{color:var(--muted)}
+#tyText i{font-style:normal}
+#tyText i.g{color:#fff}
+#tyText i.r{color:var(--red);background:rgba(255,79,109,.18)}
+#tyText i.c{box-shadow:inset 2px 0 0 var(--pink)}
+#tyText i.x{opacity:.7}
+.tyRes{flex-direction:row;flex-wrap:wrap;align-items:center;gap:18px 34px}
+.tyRes>div{display:flex;flex-direction:column;gap:6px}
+.tyRes b{font:18px var(--title);color:#fff}
+.tyRec{font:10px var(--title);color:var(--pink)}
+.tyCurve{width:300px;height:60px;image-rendering:pixelated}
+#tyIn{font-size:20px}
+#tyIn.wrong{box-shadow:inset 0 0 0 3px var(--red)}
+.tyBar{display:flex;justify-content:space-between;align-items:center}
+#tyRes{color:var(--pink);font-size:17px}
+`;  // le style de ce plugin (il utilise les variables du thème de NeoBase)
 export default async function (ctx) {
   const view = ctx.view;
   if (!ctx.host) { view.textContent = "Ce plugin doit être approuvé par NeoBase pour s'ouvrir."; return; }
   const { el, toast, sfx, ask, newTab, pixIcon, PIX, WX } = ctx.host;
   const folder = ctx.folder, legacy = ctx.legacy || {};
+  ctx.host.addStyle(CSS);
   view.innerHTML = HTML;
   const $ = id => id === "typingApp" ? view : view.querySelector('#' + id);  // les identifiants de ta vue, sans toucher à ceux du reste de NeoBase
   const doc = async n => { try { return await folder.read(n); } catch { return null; } };
