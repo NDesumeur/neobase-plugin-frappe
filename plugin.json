@@ -1,9 +1,10 @@
 {
   "id": "neobase.frappe",
   "name": "Test de frappe",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "NDesumeur",
-  "description": "Teste et améliore ta vitesse de frappe au clavier, avec ton historique.",
+  "description": "Teste ta vitesse de frappe : modes au temps ou aux mots, ponctuation, historique de tes parties.",
+  "icon": "icon.png",
   "entry": "index.js",
   "view": "frappe",
   "neobase": ">=4.0.0",
@@ -12,5 +13,7 @@
   "mobile": false,
   "system": false,
   "dependencies": {},
-  "permissions": ["storage"]
+  "permissions": [
+    "full"
+  ]
 }
