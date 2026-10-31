@@ -1,9 +1,9 @@
 {
   "pluginId": "neobase.frappe",
   "repo": "NDesumeur/neobase-plugin-frappe",
-  "version": "1.0.0",
-  "sha256": "fce86668e6830dccc527dadc4aca7dd3a70fb5dfc842f81884eac9d60ed79f9b",
-  "approvedAt": "2026-10-31T03:18:52.625Z",
+  "version": "1.2.0",
+  "sha256": "16b9bf95f8cfae2f53d721125d08e05fa558281424e59d342ecc33ccbbe496a9",
+  "approvedAt": "2026-10-31T04:26:04.484Z",
   "neobase": ">=4.0.0",
-  "signature": "cqn6SwaAdCfBGNVO4eZ6yG/cPIIiuSb09pf9X9wGx3MR6Jzbx0peUR73iqw4Rv3UzeQ7whyiO5KNThynzNyhCQ=="
+  "signature": "3KFKUrA4jUjyFz4AxeyTvYOtRSEmdYhs/8+Fr1jT7tai707U/QAc4fjqy/0dTmL0Xz2iMhgsJhkr8wsFsksBBw=="
 }
