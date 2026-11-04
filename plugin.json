@@ -1,7 +1,7 @@
 {
   "id": "neobase.frappe",
   "name": "Test de frappe",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "author": "NDesumeur",
   "description": "Teste ta vitesse de frappe : modes au temps ou aux mots, ponctuation, historique de tes parties.",
   "icon": "icon.png",
@@ -13,7 +13,8 @@
   "mobile": false,
   "system": false,
   "dependencies": {},
+  "sdk": "2.1.0",
   "permissions": [
-    "full"
+    "storage"
   ]
 }
