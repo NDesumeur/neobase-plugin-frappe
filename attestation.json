@@ -1,9 +1,9 @@
 {
   "pluginId": "neodex.frappe",
   "repo": "NDesumeur/neodex-plugin-frappe",
-  "version": "1.3.0",
-  "sha256": "f796854523750096d7f0a18539411eca61a37c529565b42dcf3379fe906082f2",
-  "approvedAt": "2026-11-04T10:05:10.900Z",
+  "version": "1.3.1",
+  "sha256": "5ca76748a39320669943470f595c79eb04fa16ddff01ed0e5c91de3fa8f84345",
+  "approvedAt": "2026-11-06T21:35:47.990Z",
   "neobase": ">=4.0.0",
-  "signature": "ffzQMI24v59ILJp/4WcqfYQoXVqLxqq9MSbEZqooaN+OR0zLTMzZ7IwApOEU8IZ60XZFmnb4nZ5aOuIyrHFqBg=="
+  "signature": "++ceu6hMevB0tMKonzR++I7K5jEf2jkKS05IoilUzY4DsPD5Lxvc9iKBeGm7rbYjGKGpsauN2bEbwtgfNx8mDg=="
 }
