@@ -1,21 +1,28 @@
 // Test de frappe : ton appli d'origine (HTML et code inchangés), livrée en plugin.
 // Ses données sont dans le dossier du plugin, que NeoDex sauvegarde (synchro cloud et sauvegardes) ; à la première ouverture elle reprend ce que tu avais dans NeoDex.
 // Elle tourne dans le bac à sable de NeoDex, avec ses outils d'interface (ctx.host) et seulement les autorisations de son plugin.json.
-const HTML = "<div class=\"appWrap\">\n      <div class=\"agHead\"><span class=\"label\">Test de frappe</span><span class=\"hint\" id=\"tyBest\"></span><div class=\"agNav\"><label class=\"check\" style=\"font-size:14px\"><input type=\"checkbox\" id=\"tyPunct\"> Ponctuation et majuscules</label><select class=\"f\" id=\"tyDur\" style=\"width:130px;font-size:14px;padding:6px 10px\"><option value=\"15\">15 s</option><option value=\"30\" selected>30 s</option><option value=\"60\">60 s</option><option value=\"120\">2 min</option><option value=\"w25\">25 mots</option><option value=\"w50\">50 mots</option></select><button class=\"btn px\" id=\"tyRestart\">RECOMMENCER</button></div></div>\n      <div class=\"sysCard px\"><div id=\"tyText\"></div><input class=\"f\" id=\"tyIn\" spellcheck=\"false\" autocomplete=\"off\" placeholder=\"Commence à taper : le chrono démarre à la première lettre\"><div class=\"tyBar\"><span id=\"tyLive\" class=\"label\"></span><span class=\"hint\">Tab ou Échap : recommencer</span></div></div>\n      <div class=\"sysCard px tyRes\" id=\"tyRes\" style=\"display:none\"></div>\n      <div class=\"sysCard px\"><span class=\"label\">Tes 20 dernières parties · mots par minute</span><div id=\"tyChart\" class=\"colChart\"></div></div>\n    </div>";
-/*CSS-MOVED*/ const CSS = `#tyText{display:flex;flex-wrap:wrap;gap:0 12px;font:22px/36px var(--text);color:var(--muted);height:108px;overflow:hidden}
+const HTML = "<div class=\"appWrap\">\n      <div class=\"agHead\"><span class=\"label\">Test de frappe</span><span class=\"hint\" id=\"tyBest\"></span><div class=\"agNav\"><label class=\"check\" style=\"font-size:14px\"><input type=\"checkbox\" id=\"tyPunct\"> Ponctuation et majuscules</label><select class=\"f\" id=\"tyDur\" style=\"width:130px;font-size:14px;padding:6px 10px\"><option value=\"15\">15 s</option><option value=\"30\" selected>30 s</option><option value=\"60\">60 s</option><option value=\"120\">2 min</option><option value=\"w25\">25 mots</option><option value=\"w50\">50 mots</option></select><button class=\"btn px\" id=\"tyRestart\">RECOMMENCER</button></div></div>\n      <div class=\"sysCard px\"><div id=\"tyText\"></div><input class=\"f\" id=\"tyIn\" spellcheck=\"false\" autocomplete=\"off\" placeholder=\"Commence à taper : le chrono démarre à la première lettre\"><div class=\"tyProg\" id=\"tyProg\"></div><div class=\"tyBar\"><span id=\"tyLive\" class=\"label\"></span><span class=\"hint\">Tab ou Échap : recommencer</span></div><div class=\"tyKb\" id=\"tyKb\"></div></div>\n      <div class=\"sysCard px tyRes\" id=\"tyRes\" style=\"display:none\"></div>\n      <div class=\"sysCard px\"><span class=\"label\">Tes 20 dernières parties · mots par minute</span><div id=\"tyChart\" class=\"colChart\"></div></div>\n    </div>";
+/*CSS-MOVED*/ const CSS = `#tyText{display:flex;flex-wrap:wrap;gap:0 12px;font:22px/36px var(--text);color:var(--muted);height:128px;overflow:hidden;padding:10px 14px;background:#0a0618 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' shape-rendering='crispEdges'%3E%3Crect width='1' height='1' fill='%23170f2e'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23130b26'/%3E%3C/svg%3E");background-size:8px 8px;image-rendering:pixelated;box-shadow:inset 0 0 0 3px #2a1d52,inset 6px 6px 0 #05010b,4px 4px 0 #05010b}
+#tyText i.c{box-shadow:none;background:var(--pink);color:#0a0618;animation:tyBlink 1s steps(1) infinite}
+@keyframes tyBlink{50%{background:transparent;color:var(--muted);box-shadow:inset 0 -4px 0 var(--pink)}}
+.tyProg{display:flex;gap:2px;height:10px;margin:2px 0}.tyProg i{flex:1;background:#1c1238;box-shadow:inset -2px -2px 0 rgba(0,0,0,.35)}.tyProg i.on{background:var(--pink)}
+.tyKb{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:6px;user-select:none}.tyKb div{display:flex;gap:4px}
+.tyKb b{display:grid;place-items:center;width:30px;height:30px;font:12px var(--title);color:#d9c6ff;background:#1c1238;box-shadow:inset -3px -3px 0 #0e0820,inset 3px 3px 0 #2e2256,0 3px 0 #05010b;transition:transform .05s}
+.tyKb b.sp{width:260px}.tyKb b.g{background:#2f7a46;color:#fff;transform:translateY(2px);box-shadow:inset -3px -3px 0 #1e5030,inset 3px 3px 0 #5fbf6a}
+.tyKb b.r{background:#8a2c3c;color:#fff;transform:translateY(2px);box-shadow:inset -3px -3px 0 #5a1a26,inset 3px 3px 0 #d8584a}
+.tyKb b.next{box-shadow:inset 0 0 0 2px var(--pink),0 3px 0 #05010b}
 #tyText .ok{color:var(--lilac)}
 #tyText .bad{color:var(--red);text-decoration:line-through}
 #tyText .cur{color:var(--muted)}
 #tyText i{font-style:normal}
 #tyText i.g{color:#fff}
 #tyText i.r{color:var(--red);background:rgba(255,79,109,.18)}
-#tyText i.c{box-shadow:inset 2px 0 0 var(--pink)}
 #tyText i.x{opacity:.7}
 .tyRes{flex-direction:row;flex-wrap:wrap;align-items:center;gap:18px 34px}
 .tyRes>div{display:flex;flex-direction:column;gap:6px}
 .tyRes b{font:18px var(--title);color:#fff}
 .tyRec{font:10px var(--title);color:var(--pink)}
-.tyCurve{width:300px;height:60px;image-rendering:pixelated}
+.tyCurve{width:300px;height:60px;image-rendering:pixelated;background:#0a0618;box-shadow:inset 0 0 0 2px #2a1d52}
 #tyIn{font-size:20px}
 #tyIn.wrong{box-shadow:inset 0 0 0 3px var(--red)}
 .tyBar{display:flex;justify-content:space-between;align-items:center}
@@ -76,6 +83,9 @@ export default async function (ctx) {
     }));
     const c = box.querySelector('.cur'); if (c) box.scrollTop = c.offsetTop - box.offsetTop - 36 > 0 ? c.offsetTop - box.offsetTop - 36 : 0;
     const acc = ty.keys ? Math.round((ty.keys - ty.errors) / ty.keys * 100) : 100;
+    const done = ty.byWords ? ty.i / ty.words.length : ty.secs ? 1 - ty.left / ty.secs : 0, n = Math.round(done * 30);
+    $('tyProg').replaceChildren(...Array.from({length: 30}, (_, k) => el('i', k < n ? 'on' : '')));
+    const nx = (ty.words[ty.i] || '')[cur.length] ?? ' '; $('tyKb').querySelectorAll('b').forEach(b => b.classList.toggle('next', b.dataset.k === nx.toLowerCase()));
     $('tyLive').textContent = (ty.byWords ? ty.i + ' / ' + ty.words.length + ' mots' : ty.left + ' s') + ' · ' + tyWpm() + ' mots/min · ' + acc + ' %';
   }
   function tyEnd() {
@@ -114,7 +124,13 @@ export default async function (ctx) {
     $('tyIn').classList.toggle('wrong', !ty.words[ty.i]?.startsWith(e.target.value));
     tyRender();
   };
-  $('tyIn').onkeydown = e => { if (e.key === 'Tab' || e.key === 'Escape') { e.preventDefault(); tyNew(); $('tyIn').focus(); } };
+  // un clavier AZERTY en pixels : la touche suivante est entourée, celle que tu frappes s'allume (verte si juste, rouge sinon)
+  $('tyKb').replaceChildren(...['azertyuiop', 'qsdfghjklm', 'wxcvbn,.', ' '].map(r => { const d = el('div'); for (const k of r) { const b = el('b', k === ' ' ? 'sp' : '', k === ' ' ? 'ESPACE' : k.toUpperCase()); b.dataset.k = k; d.append(b); } return d; }));
+  const tyFlash = (k, ok) => { const b = [...$('tyKb').querySelectorAll('b')].find(x => x.dataset.k === k); if (!b) return; b.classList.remove('g', 'r'); b.classList.add(ok ? 'g' : 'r'); setTimeout(() => b.classList.remove('g', 'r'), 140); };
+  $('tyIn').onkeydown = e => {
+    if (e.key === 'Tab' || e.key === 'Escape') { e.preventDefault(); tyNew(); $('tyIn').focus(); return; }
+    if (e.key.length === 1 && ty && !ty.done) { const want = (ty.words[ty.i] || '')[$('tyIn').value.length] ?? ' '; tyFlash(e.key.toLowerCase(), e.key === want); }
+  };
   $('tyRestart').onclick = () => { tyNew(); $('tyIn').focus(); };
   $('tyDur').onchange = $('tyPunct').onchange = () => { tyNew(); $('tyIn').focus(); };
   // ---- fin ----
